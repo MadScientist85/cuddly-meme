@@ -14,7 +14,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { IconDownload, IconFileText, IconSpinner } from "@/components/ui/icons"
 import type { Template } from "@/lib/types/template"
 
 interface TemplateExportProps {
@@ -148,10 +147,7 @@ ${template.versions[template.currentVersion - 1].content}
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center space-x-2">
-            <IconDownload className="h-5 w-5" />
-            <span>Export Template</span>
-          </DialogTitle>
+          <DialogTitle>Export Template</DialogTitle>
           <DialogDescription>Export "{template.title}" in your preferred format</DialogDescription>
         </DialogHeader>
 
@@ -215,14 +211,11 @@ ${template.versions[template.currentVersion - 1].content}
 
           {/* Format Info */}
           <div className="bg-muted p-3 rounded-lg">
-            <div className="flex items-start space-x-2">
-              <IconFileText className="h-4 w-4 mt-0.5 text-muted-foreground" />
-              <div className="text-xs text-muted-foreground">
-                {exportFormat === "json" && "JSON format preserves all template data and structure."}
-                {exportFormat === "csv" && "CSV format is ideal for importing into spreadsheet applications."}
-                {exportFormat === "pdf" && "PDF format creates a formatted document suitable for printing."}
-                {exportFormat === "docx" && "DOCX format creates an editable Word document."}
-              </div>
+            <div className="text-xs text-muted-foreground">
+              {exportFormat === "json" && "JSON format preserves all template data and structure."}
+              {exportFormat === "csv" && "CSV format is ideal for importing into spreadsheet applications."}
+              {exportFormat === "pdf" && "PDF format creates a formatted document suitable for printing."}
+              {exportFormat === "docx" && "DOCX format creates an editable Word document."}
             </div>
           </div>
         </div>
@@ -232,17 +225,7 @@ ${template.versions[template.currentVersion - 1].content}
             Cancel
           </Button>
           <Button onClick={handleExport} disabled={isExporting}>
-            {isExporting ? (
-              <>
-                <IconSpinner className="h-4 w-4 mr-2 animate-spin" />
-                Exporting...
-              </>
-            ) : (
-              <>
-                <IconDownload className="h-4 w-4 mr-2" />
-                Export
-              </>
-            )}
+            {isExporting ? "Exporting..." : "Export"}
           </Button>
         </DialogFooter>
       </DialogContent>

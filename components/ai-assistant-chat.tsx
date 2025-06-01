@@ -6,16 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
-import {
-  IconSend,
-  IconUser,
-  IconOpenAI,
-  IconPlus,
-  IconEdit,
-  IconDownload,
-  IconCopy,
-  IconSpinner,
-} from "@/components/ui/icons"
+import { IconSpinner } from "@/components/ui/icons"
 import type { Template } from "@/lib/types/template"
 import { useChat } from "ai/react"
 
@@ -82,7 +73,7 @@ What would you like to work on today?`,
       {/* Floating Chat Button */}
       <div className="fixed bottom-6 right-6 z-50">
         <Button onClick={() => setIsOpen(!isOpen)} size="lg" className="rounded-full h-14 w-14 shadow-lg">
-          <IconOpenAI className="h-6 w-6" />
+          AI
         </Button>
       </div>
 
@@ -109,19 +100,15 @@ What would you like to work on today?`,
               <p className="text-sm font-medium mb-2">Quick Actions:</p>
               <div className="grid grid-cols-2 gap-2">
                 <Button variant="outline" size="sm" onClick={() => handleQuickAction("create")} className="text-xs">
-                  <IconPlus className="h-3 w-3 mr-1" />
                   Create
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => handleQuickAction("modify")} className="text-xs">
-                  <IconEdit className="h-3 w-3 mr-1" />
                   Modify
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => handleQuickAction("improve")} className="text-xs">
-                  <IconCopy className="h-3 w-3 mr-1" />
                   Improve
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => handleQuickAction("explain")} className="text-xs">
-                  <IconDownload className="h-3 w-3 mr-1" />
                   Explain
                 </Button>
               </div>
@@ -140,8 +127,6 @@ What would you like to work on today?`,
                       }`}
                     >
                       <div className="flex items-start space-x-2">
-                        {message.role === "assistant" && <IconOpenAI className="h-4 w-4 mt-0.5 flex-shrink-0" />}
-                        {message.role === "user" && <IconUser className="h-4 w-4 mt-0.5 flex-shrink-0" />}
                         <div className="text-sm whitespace-pre-wrap">{message.content}</div>
                       </div>
                     </div>
@@ -171,7 +156,7 @@ What would you like to work on today?`,
                   className="flex-1"
                 />
                 <Button type="submit" disabled={isLoading || !input.trim()} size="sm">
-                  <IconSend className="h-4 w-4" />
+                  Send
                 </Button>
               </form>
             </div>

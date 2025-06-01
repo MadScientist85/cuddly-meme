@@ -18,7 +18,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
-import { IconSave, IconShare, IconDownload, IconPlus, IconTrash, IconCopy, IconFileText } from "@/components/ui/icons"
+import { IconPlus } from "@/components/ui/icons" // Import IconPlus here
 import type { Template, TemplateVersion } from "@/lib/types/template"
 
 interface TemplateEditorProps {
@@ -137,7 +137,6 @@ export function TemplateEditor({ template, onSave, onCancel }: TemplateEditorPro
             Cancel
           </Button>
           <Button onClick={() => setShowPreview(true)} variant="outline">
-            <IconFileText className="h-4 w-4 mr-2" />
             Preview
           </Button>
           {template && (
@@ -146,7 +145,6 @@ export function TemplateEditor({ template, onSave, onCancel }: TemplateEditorPro
             </Button>
           )}
           <Button onClick={handleSave} disabled={!formData.title || !formData.content}>
-            <IconSave className="h-4 w-4 mr-2" />
             Save Template
           </Button>
         </div>
@@ -212,7 +210,7 @@ export function TemplateEditor({ template, onSave, onCancel }: TemplateEditorPro
                     onKeyPress={(e) => e.key === "Enter" && handleAddTag()}
                   />
                   <Button onClick={handleAddTag} size="sm">
-                    <IconPlus className="h-4 w-4" />
+                    <IconPlus className="h-4 w-4" /> {/* Use IconPlus here */}
                   </Button>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -302,20 +300,16 @@ export function TemplateEditor({ template, onSave, onCancel }: TemplateEditorPro
             </CardHeader>
             <CardContent className="space-y-2">
               <Button variant="outline" className="w-full justify-start">
-                <IconCopy className="h-4 w-4 mr-2" />
                 Duplicate Template
               </Button>
               <Button variant="outline" className="w-full justify-start">
-                <IconShare className="h-4 w-4 mr-2" />
                 Share Template
               </Button>
               <Button variant="outline" className="w-full justify-start">
-                <IconDownload className="h-4 w-4 mr-2" />
                 Export Template
               </Button>
               {template && (
                 <Button variant="destructive" className="w-full justify-start">
-                  <IconTrash className="h-4 w-4 mr-2" />
                   Delete Template
                 </Button>
               )}

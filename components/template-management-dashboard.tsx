@@ -8,20 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  IconPlus,
-  IconEdit,
-  IconShare,
-  IconDownload,
-  IconCopy,
-  IconFileText,
-  IconScale,
-  IconGavel,
-  IconUsers,
-  IconStar,
-  IconSearch,
-  IconFilter,
-} from "@/components/ui/icons"
+import { IconSpinner, IconStar } from "@/components/ui/icons"
 import type { Template, TemplateShare } from "@/lib/types/template"
 import { useLocalStorage } from "@/lib/hooks/use-local-storage"
 import { TemplateEditor } from "./template-editor"
@@ -110,15 +97,15 @@ export function TemplateManagementDashboard() {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc")
 
   const categories = [
-    { value: "all", label: "All Categories", icon: IconFileText },
-    { value: "hearing_request", label: "Hearing Requests", icon: IconGavel },
-    { value: "constitutional_argument", label: "Constitutional Arguments", icon: IconScale },
-    { value: "statutory_analysis", label: "Statutory Analysis", icon: IconFileText },
-    { value: "motion", label: "Motions", icon: IconEdit },
-    { value: "brief", label: "Legal Briefs", icon: IconFileText },
-    { value: "contract", label: "Contracts", icon: IconFileText },
-    { value: "correspondence", label: "Correspondence", icon: IconFileText },
-    { value: "custom", label: "Custom Templates", icon: IconPlus },
+    { value: "all", label: "All Categories", icon: IconSpinner },
+    { value: "hearing_request", label: "Hearing Requests", icon: IconSpinner },
+    { value: "constitutional_argument", label: "Constitutional Arguments", icon: IconSpinner },
+    { value: "statutory_analysis", label: "Statutory Analysis", icon: IconSpinner },
+    { value: "motion", label: "Motions", icon: IconSpinner },
+    { value: "brief", label: "Legal Briefs", icon: IconSpinner },
+    { value: "contract", label: "Contracts", icon: IconSpinner },
+    { value: "correspondence", label: "Correspondence", icon: IconSpinner },
+    { value: "custom", label: "Custom Templates", icon: IconSpinner },
   ]
 
   const filteredAndSortedTemplates = useMemo(() => {
@@ -288,7 +275,6 @@ export function TemplateManagementDashboard() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <IconScale className="h-8 w-8 text-primary" />
               <div>
                 <h1 className="text-2xl font-bold text-foreground">Template Management System</h1>
                 <p className="text-sm text-muted-foreground">
@@ -298,7 +284,7 @@ export function TemplateManagementDashboard() {
             </div>
             <div className="flex items-center space-x-4">
               <Button onClick={handleCreateTemplate} className="flex items-center space-x-2">
-                <IconPlus className="h-4 w-4" />
+                <IconSpinner className="h-4 w-4" />
                 <span>New Template</span>
               </Button>
             </div>
@@ -319,23 +305,18 @@ export function TemplateManagementDashboard() {
             {/* Filters and Search */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <IconFilter className="h-5 w-5" />
-                  <span>Filters & Search</span>
-                </CardTitle>
+                <CardTitle>Filters & Search</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
                     <Label htmlFor="search">Search</Label>
                     <div className="relative">
-                      <IconSearch className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="search"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         placeholder="Search templates..."
-                        className="pl-10"
                       />
                     </div>
                   </div>
@@ -389,17 +370,14 @@ export function TemplateManagementDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredAndSortedTemplates.map((template) => {
                 const category = categories.find((c) => c.value === template.category)
-                const Icon = category?.icon || IconFileText
+                const Icon = category?.icon || IconSpinner
                 return (
                   <Card key={template.id} className="hover:shadow-md transition-shadow">
                     <CardHeader className="pb-3">
                       <div className="flex items-start justify-between">
-                        <div className="flex items-center space-x-2 flex-1">
-                          <Icon className="h-5 w-5 text-primary flex-shrink-0" />
-                          <div className="min-w-0 flex-1">
-                            <CardTitle className="text-base truncate">{template.title}</CardTitle>
-                            <CardDescription className="text-sm line-clamp-2">{template.description}</CardDescription>
-                          </div>
+                        <div className="min-w-0 flex-1">
+                          <CardTitle className="text-base truncate">{template.title}</CardTitle>
+                          <CardDescription className="text-sm line-clamp-2">{template.description}</CardDescription>
                         </div>
                         <div className="flex space-x-1 flex-shrink-0">
                           <Button
@@ -408,7 +386,7 @@ export function TemplateManagementDashboard() {
                             onClick={() => handleEditTemplate(template)}
                             className="h-8 w-8 p-0"
                           >
-                            <IconEdit className="h-4 w-4" />
+                            Edit
                           </Button>
                           <Button
                             size="sm"
@@ -419,7 +397,7 @@ export function TemplateManagementDashboard() {
                             }}
                             className="h-8 w-8 p-0"
                           >
-                            <IconShare className="h-4 w-4" />
+                            Share
                           </Button>
                           <Button
                             size="sm"
@@ -430,7 +408,7 @@ export function TemplateManagementDashboard() {
                             }}
                             className="h-8 w-8 p-0"
                           >
-                            <IconDownload className="h-4 w-4" />
+                            Export
                           </Button>
                         </div>
                       </div>
@@ -464,7 +442,6 @@ export function TemplateManagementDashboard() {
                         <div className="flex items-center space-x-2">
                           <span className="text-xs text-muted-foreground">{template.usage} uses</span>
                           <Button size="sm" onClick={() => handleDuplicateTemplate(template)} variant="outline">
-                            <IconCopy className="h-3 w-3 mr-1" />
                             Use
                           </Button>
                         </div>
@@ -482,7 +459,7 @@ export function TemplateManagementDashboard() {
             {filteredAndSortedTemplates.length === 0 && (
               <Card>
                 <CardContent className="py-12 text-center">
-                  <IconFileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <IconSpinner className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-semibold mb-2">No templates found</h3>
                   <p className="text-muted-foreground mb-4">
                     {searchTerm || selectedCategory !== "all"
@@ -490,7 +467,7 @@ export function TemplateManagementDashboard() {
                       : "Create your first legal template to get started"}
                   </p>
                   <Button onClick={handleCreateTemplate}>
-                    <IconPlus className="h-4 w-4 mr-2" />
+                    <IconSpinner className="h-4 w-4 mr-2" />
                     Create Template
                   </Button>
                 </CardContent>
@@ -502,7 +479,7 @@ export function TemplateManagementDashboard() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
-                  <IconUsers className="h-5 w-5" />
+                  <IconSpinner className="h-5 w-5" />
                   <span>Public Template Library</span>
                 </CardTitle>
                 <CardDescription>Discover and use templates shared by the community</CardDescription>
@@ -513,12 +490,12 @@ export function TemplateManagementDashboard() {
                     .filter((template) => template.isPublic)
                     .map((template) => {
                       const category = categories.find((c) => c.value === template.category)
-                      const Icon = category?.icon || IconFileText
+                      const Icon = category?.icon || IconSpinner
                       return (
                         <Card key={template.id} className="hover:shadow-md transition-shadow">
                           <CardHeader className="pb-3">
                             <div className="flex items-center space-x-2">
-                              <Icon className="h-5 w-5 text-primary" />
+                              <IconSpinner className="h-5 w-5 text-primary" />
                               <div>
                                 <CardTitle className="text-base">{template.title}</CardTitle>
                                 <CardDescription className="text-sm">by {template.createdBy}</CardDescription>
@@ -538,7 +515,7 @@ export function TemplateManagementDashboard() {
                                 <span className="text-xs text-muted-foreground">{template.usage} uses</span>
                               </div>
                               <Button size="sm" onClick={() => handleDuplicateTemplate(template)}>
-                                <IconCopy className="h-3 w-3 mr-1" />
+                                <IconSpinner className="h-3 w-3 mr-1" />
                                 Use Template
                               </Button>
                             </div>
@@ -555,14 +532,14 @@ export function TemplateManagementDashboard() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
-                  <IconShare className="h-5 w-5" />
+                  <IconSpinner className="h-5 w-5" />
                   <span>Shared with Me</span>
                 </CardTitle>
                 <CardDescription>Templates that others have shared with you</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-center py-12">
-                  <IconShare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <IconSpinner className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-semibold mb-2">No shared templates</h3>
                   <p className="text-muted-foreground">Templates shared with you will appear here</p>
                 </div>
