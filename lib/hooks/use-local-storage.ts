@@ -1,10 +1,9 @@
 "use client"
 
-export const useLocalStorage = <T>(
-  key: string,
-  initialValue: T
-): [T, (value: T) => void] => {
-  // Initialize state with initialValue to prevent hydration mismatch\
+import { useState, useEffect } from "react"
+
+export function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T | ((val: T) => T)) => void] {
+  // Initialize state with initialValue
   const [storedValue, setStoredValue] = useState<T>(initialValue)
 
   // Flag to track if we're on the client side
@@ -12,13 +11,12 @@ export const useLocalStorage = <T>(
 
   useEffect(() => {
     setIsClient(true)
-\
-    try {\
-      if (typeof window !== "undefined" && window.localStorage) {\
+
+    try {
+      if (typeof window !== "undefined") {
         const item = window.localStorage.getItem(key)
-        if (item !== null) {\
-          const parsedItem = JSON.parse(item)
-          setStoredValue(parsedItem)
+        if (item !== null) {
+          setStoredValue(JSON.parse(item))
         }
       }
     } catch (error) {
@@ -27,14 +25,17 @@ export const useLocalStorage = <T>(
     }
   }, [key])
 
-  const setValue = (value: T) => {\
+  const setValue = (value: T | ((val: T) => T)) => {
     try {
+      // Allow value to be a function for previous state pattern
+      const valueToStore = value instanceof Function ? value(storedValue) : value
+
       // Update state immediately
-      setStoredValue(value)
-      
-      // Only attempt to write to localStorage on the client side\
-      if (isClient && typeof window !== "undefined" && window.localStorage) {
-        window.localStorage.setItem(key, JSON.stringify(value))
+      setStoredValue(valueToStore)
+
+      // Only attempt to write to localStorage on the client side
+      if (isClient && typeof window !== "undefined") {
+        window.localStorage.setItem(key, JSON.stringify(valueToStore))
       }
     } catch (error) {
       console.error(`Error writing to localStorage for key "${key}":`, error)
@@ -42,5 +43,5 @@ export const useLocalStorage = <T>(
     }
   }
 
-  return [storedValue, setValue]\
+  return [storedValue, setValue]
 }
