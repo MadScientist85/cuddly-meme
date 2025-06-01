@@ -56,23 +56,23 @@ You will need to use the environment variables [defined in `.env.example`](.env.
 
 Copy the `.env.example` file and populate the required env vars:
 
-```bash
+\`\`\`bash
 cp .env.example .env
-```
+\`\`\`
 
 [Install the Supabase CLI](https://supabase.com/docs/guides/cli) and start the local Supabase stack:
 
-```bash
+\`\`\`bash
 npm install supabase --save-dev
 npx supabase start
-```
+\`\`\`
 
 Install the local dependencies and start dev mode:
 
-```bash
+\`\`\`bash
 pnpm install
 pnpm dev
-```
+\`\`\`
 
 Your app template should now be running on [localhost:3000](http://localhost:3000/).
 

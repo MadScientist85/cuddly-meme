@@ -3,16 +3,12 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
-import { SidebarProvider } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/sidebar"
-import { SidebarInset } from "@/components/ui/sidebar"
-import { Toaster } from "@/components/ui/toaster"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "Legal AI Assistant",
-  description: "AI-powered legal document generation and analysis",
+  description: "Customizable legal document templates with AI assistance",
     generator: 'v0.dev'
 }
 
@@ -25,13 +21,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <SidebarProvider>
-            <AppSidebar />
-            <SidebarInset>
-              <main className="min-h-screen">{children}</main>
-            </SidebarInset>
-            <Toaster />
-          </SidebarProvider>
+          {children}
         </ThemeProvider>
       </body>
     </html>
