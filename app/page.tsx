@@ -1,9 +1,5 @@
-import { LegalPromptDashboard } from "@/components/legal-prompt-dashboard"
+import { TemplateManagementDashboard } from "@/components/template-management-dashboard"
 
 export default function HomePage() {
-  return (
-    <div className="min-h-screen bg-background">
-      <LegalPromptDashboard />
-    </div>
-  )
+  return <TemplateManagementDashboard />
 }
