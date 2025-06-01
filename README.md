@@ -1,86 +1,111 @@
 <a href="https://chat.vercel.ai/">
   <img alt="Next.js 13 and app template Router-ready AI chatbot." src="https://chat.vercel.ai/opengraph-image.png" />
-  <h1 align="center">Next.js AI Chatbot</h1>
+  <h1 align="center">Legal AI Assistant</h1>
 </a>
 
 <p align="center">
-  An open-source AI chatbot app template built with Next.js, the Vercel AI SDK, OpenAI, and Supabase Auth and Postgres DB.
+  A specialized AI-powered legal assistant built with Next.js, the Vercel AI SDK, OpenAI, and Supabase for Oklahoma post-conviction relief and trauma-informed sentencing.
 </p>
 
 <p align="center">
   <a href="#features"><strong>Features</strong></a> ·
   <a href="#model-providers"><strong>Model Providers</strong></a> ·
   <a href="#deploy-your-own"><strong>Deploy Your Own</strong></a> ·
-  <a href="#running-locally"><strong>Running locally</strong></a> ·
-  <a href="#authors"><strong>Authors</strong></a>
+  <a href="#running-locally"><strong>Running locally</strong></a>
 </p>
 <br/>
 
 ## Features
 
-- [Next.js](https://nextjs.org) App Router
-- React Server Components (RSCs), Suspense, and Server Actions
-- [Vercel AI SDK](https://sdk.vercel.ai/docs) for streaming chat UI
-- Support for OpenAI (default), Anthropic, Hugging Face, or custom AI chat models and/or LangChain
-- Edge runtime-ready
-- [shadcn/ui](https://ui.shadcn.com)
-  - Styling with [Tailwind CSS](https://tailwindcss.com)
-  - [Radix UI](https://radix-ui.com) for headless component primitives
-  - Icons from [Phosphor Icons](https://phosphoricons.com)
-- Chat History with [Supabase Postgres DB](https://supabase.com)
-- [Supabase Auth](https://supabase.com/auth) for authentication
+- [Next.js](https://nextjs.org) App Router with React Server Components
+- [Vercel AI SDK](https://sdk.vercel.ai/docs) for streaming AI responses
+- Support for OpenAI, Hugging Face, Perplexity, and DeepSeek models
+- [shadcn/ui](https://ui.shadcn.com) components with [Tailwind CSS](https://tailwindcss.com)
+- Template management system with versioning and sharing
+- AI-powered legal document generation
+- [Supabase](https://supabase.com) for authentication and data storage
+- Specialized for Oklahoma Survivors' Act litigation
 
 ## Model Providers
 
-This template ships with OpenAI `gpt-3.5-turbo` as the default. However, thanks to the [Vercel AI SDK](https://sdk.vercel.ai/docs), you can switch LLM providers to [Anthropic](https://anthropic.com), [Hugging Face](https://huggingface.co), or using [LangChain](https://js.langchain.com) with just a few lines of code.
+This template supports multiple AI providers:
+- **OpenAI** (GPT-4, GPT-3.5-turbo) - Primary provider for legal reasoning
+- **Hugging Face** - For document classification and analysis
+- **Perplexity AI** - For legal research and case law lookup
+- **DeepSeek** - Alternative reasoning model
+
+## Environment Variables
+
+Create a `.env.local` file with the following variables:
+
+\`\`\`bash
+# Required: Database
+POSTGRES_URL=your_postgres_url
+SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+
+# Required: AI APIs (at least one)
+OPENAI_API_KEY=your_openai_api_key
+DEEPSEEK_API_KEY=your_deepseek_api_key
+PERPLEXITY_API_KEY=your_perplexity_api_key
+HUGGINGFACE_API_KEY=your_huggingface_api_key
+
+# Optional: Authentication
+NEXT_PUBLIC_AUTH_GITHUB=true
+
+# Optional: Analytics (server-side only)
+STATSIG_SERVER_API_KEY=your_statsig_server_key
+\`\`\`
+
+**Important**: Never expose sensitive API keys to the client. Use `NEXT_PUBLIC_` prefix only for non-sensitive configuration values.
 
 ## Deploy Your Own
 
-You can deploy your own version of the Next.js AI Chatbot to Vercel with one click:
+You can deploy your own version of the Legal AI Assistant to Vercel with one click:
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsupabase-community%2Fvercel-ai-chatbot&env=OPENAI_API_KEY&envDescription=You%20must%20first%20activate%20a%20Billing%20Account%20here%3A%20https%3A%2F%2Fplatform.openai.com%2Faccount%2Fbilling%2Foverview&envLink=https%3A%2F%2Fplatform.openai.com%2Faccount%2Fapi-keys&project-name=vercel-ai-chatbot-with-supabase&repository-name=vercel-ai-chatbot-with-supabase&integration-ids=oac_VqOgBHqhEoFTPzGkPd7L0iH6&external-id=https%3A%2F%2Fgithub.com%2Fsupabase-community%2Fvercel-ai-chatbot%2Ftree%2Fmain)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fyour-repo%2Flegal-ai-assistant&env=OPENAI_API_KEY,SUPABASE_URL,NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY&envDescription=Configure%20your%20AI%20and%20database%20credentials&project-name=legal-ai-assistant&repository-name=legal-ai-assistant)
 
-### Set up GitHub OAuth
+## Running Locally
 
-This demo uses GitHub Oauth. Follow the [GitHub OAuth setup steps](https://supabase.com/docs/guides/auth/social-login/auth-github) on your Supabase project.
-
-### Configure your site url
-
-In the Supabase Dashboard, navigate to [Auth > URL configuration](https://app.supabase.com/project/_/auth/url-configuration) and set your Vercel URL as the site URL.
-
-## Running locally
-
-You will need to use the environment variables [defined in `.env.example`](.env.example) to run Next.js AI Chatbot. It's recommended you use [Vercel Environment Variables](https://vercel.com/docs/concepts/projects/environment-variables) for this, but a `.env` file is all that is necessary.
-
-> Note: You should not commit your `.env` file or it will expose secrets that will allow others to control access to your various OpenAI and authentication provider accounts.
-
-Copy the `.env.example` file and populate the required env vars:
-
+1. Clone the repository:
 \`\`\`bash
-cp .env.example .env
+git clone https://github.com/your-repo/legal-ai-assistant.git
+cd legal-ai-assistant
 \`\`\`
 
-[Install the Supabase CLI](https://supabase.com/docs/guides/cli) and start the local Supabase stack:
-
+2. Install dependencies:
 \`\`\`bash
-npm install supabase --save-dev
+npm install
+\`\`\`
+
+3. Copy the environment variables:
+\`\`\`bash
+cp .env.example .env.local
+\`\`\`
+
+4. Configure your environment variables in `.env.local`
+
+5. Set up Supabase (optional):
+\`\`\`bash
 npx supabase start
 \`\`\`
 
-Install the local dependencies and start dev mode:
-
+6. Run the development server:
 \`\`\`bash
-pnpm install
-pnpm dev
+npm run dev
 \`\`\`
 
-Your app template should now be running on [localhost:3000](http://localhost:3000/).
+Your app should now be running on [localhost:3000](http://localhost:3000/).
 
-## Authors
+## Security Notes
 
-This library is created by [Vercel](https://vercel.com) and [Next.js](https://nextjs.org) team members, with contributions from:
+- All sensitive API keys are kept server-side only
+- Client-side analytics use secure server endpoints
+- Authentication is handled through Supabase with proper RLS policies
+- Environment variables are properly scoped (client vs server)
 
-- Jared Palmer ([@jaredpalmer](https://twitter.com/jaredpalmer)) - [Vercel](https://vercel.com)
-- Shu Ding ([@shuding\_](https://twitter.com/shuding_)) - [Vercel](https://vercel.com)
-- shadcn ([@shadcn](https://twitter.com/shadcn)) - [Contractor](https://shadcn.com)
-- Thor Schaeff ([@thorwebdev](https://twitter.com/thorwebdev)) - [Supabaseifier](https://thor.bio)
+## Legal Disclaimer
+
+This tool is designed to assist with legal document preparation but does not constitute legal advice. Always consult with qualified legal professionals for specific legal matters.
