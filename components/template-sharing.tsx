@@ -16,7 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { IconShare, IconUsers, IconCopy, IconMail, IconCheck, IconEye, IconEdit } from "@/components/ui/icons"
+import { IconShare, IconUsers, IconCopy, IconCheck, IconEye, IconEdit } from "@/components/ui/icons"
 import type { Template, TemplateShare } from "@/lib/types/template"
 import { useCopyToClipboard } from "@/lib/hooks/use-copy-to-clipboard"
 
@@ -111,7 +111,7 @@ export function TemplateSharing({ template, isOpen, onClose, onShare }: Template
                   onChange={() => setShareType("private")}
                 />
                 <Label htmlFor="private" className="flex items-center space-x-2 cursor-pointer">
-                  <IconMail className="h-4 w-4" />
+                  <IconUsers className="h-4 w-4" />
                   <span>Private - Share with specific people</span>
                 </Label>
               </div>
