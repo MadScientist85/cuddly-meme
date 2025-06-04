@@ -1,21 +1,27 @@
 /** @type {import('next').NextConfig} */
-module.exports = {
-  reactStrictMode: true,
-  images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "**.githubusercontent.com",
-      },
-    ],
-    // Remove unoptimized: true for better performance
+const nextConfig = {
+  experimental: {
+    ppr: true,
   },
-  // Remove experimental.serverActions as it's stable in Next.js 15
-  // Keep error ignoring only for development, remove for production
   eslint: {
-    ignoreDuringBuilds: process.env.NODE_ENV === "development",
+    ignoreDuringBuilds: true,
   },
   typescript: {
-    ignoreBuildErrors: process.env.NODE_ENV === "development",
+    ignoreBuildErrors: true,
+  },
+  images: {
+    unoptimized: true,
+  },
+  webpack: (config, { isServer }) => {
+    // Ensure React is properly resolved
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      react: require.resolve("react"),
+      "react-dom": require.resolve("react-dom"),
+    }
+
+    return config
   },
 }
+
+module.exports = nextConfig

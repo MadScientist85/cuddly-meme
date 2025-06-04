@@ -18,7 +18,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
-import { IconPlus } from "@/components/ui/icons" // Import IconPlus here
+import { IconPlus } from "@/components/ui/icons"
 import type { Template, TemplateVersion } from "@/lib/types/template"
 
 interface TemplateEditorProps {
