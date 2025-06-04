@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    ppr: true,
+    // ppr: true, // Removed because it's not supported in current Next.js versions
   },
   eslint: {
     ignoreDuringBuilds: true,
@@ -24,4 +24,4 @@ const nextConfig = {
   },
 }
 
-module.exports = nextConfig
+module.exports = nextConfig 
