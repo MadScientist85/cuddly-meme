@@ -40,10 +40,8 @@ Create a `.env.local` file with the following variables:
 
 \`\`\`bash
 # Required: Database
-POSTGRES_URL=your_postgres_url
-SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+POSTGRES_URL=your_postgres_connection_string
+SUPABASE_URL=your_supabase_project_url
 SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 
 # Required: AI APIs (at least one)
@@ -59,13 +57,17 @@ NEXT_PUBLIC_AUTH_GITHUB=true
 STATSIG_SERVER_API_KEY=your_statsig_server_key
 \`\`\`
 
-**Important**: Never expose sensitive API keys to the client. Use `NEXT_PUBLIC_` prefix only for non-sensitive configuration values.
+**Important Security Notes:**
+- All database and API keys are kept server-side only
+- Supabase client configuration is handled automatically through server components
+- Never expose sensitive API keys to the client-side code
+- Use Row Level Security (RLS) policies in Supabase for data protection
 
 ## Deploy Your Own
 
 You can deploy your own version of the Legal AI Assistant to Vercel with one click:
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fyour-repo%2Flegal-ai-assistant&env=OPENAI_API_KEY,SUPABASE_URL,NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY&envDescription=Configure%20your%20AI%20and%20database%20credentials&project-name=legal-ai-assistant&repository-name=legal-ai-assistant)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fyour-repo%2Flegal-ai-assistant&env=OPENAI_API_KEY,SUPABASE_URL,SUPABASE_SERVICE_ROLE_KEY&envDescription=Configure%20your%20AI%20and%20database%20credentials&project-name=legal-ai-assistant&repository-name=legal-ai-assistant)
 
 ## Running Locally
 
@@ -82,12 +84,15 @@ npm install
 
 3. Copy the environment variables:
 \`\`\`bash
-cp .env.example .env.local
+cp env.example .env.local
 \`\`\`
 
-4. Configure your environment variables in `.env.local`
+4. Configure your environment variables in \`.env.local\`:
+   - Set up your Supabase project and get the required credentials
+   - Add at least one AI API key (OpenAI recommended)
+   - Configure other optional services as needed
 
-5. Set up Supabase (optional):
+5. Set up Supabase (optional for local development):
 \`\`\`bash
 npx supabase start
 \`\`\`
@@ -99,13 +104,47 @@ npm run dev
 
 Your app should now be running on [localhost:3000](http://localhost:3000/).
 
-## Security Notes
+## Database Setup
 
-- All sensitive API keys are kept server-side only
-- Client-side analytics use secure server endpoints
-- Authentication is handled through Supabase with proper RLS policies
-- Environment variables are properly scoped (client vs server)
+The application uses Supabase for data storage with the following setup:
+
+1. **Authentication**: Handled through server-side Supabase client
+2. **Row Level Security**: Enabled for all tables to ensure data protection
+3. **Real-time subscriptions**: Available for chat and document updates
+4. **File storage**: For document attachments and exports
+
+## Security Architecture
+
+- **Server-Side Authentication**: All sensitive operations use server components
+- **API Key Protection**: No sensitive keys exposed to client-side code
+- **Database Security**: RLS policies protect user data
+- **Secure Analytics**: Analytics tracking uses server-side endpoints only
 
 ## Legal Disclaimer
 
 This tool is designed to assist with legal document preparation but does not constitute legal advice. Always consult with qualified legal professionals for specific legal matters.
+\`\`\`
+
+```plaintext file="env.example"
+# Database
+POSTGRES_URL=
+POSTGRES_USER=
+POSTGRES_PASSWORD=
+POSTGRES_DATABASE=
+POSTGRES_HOST=
+
+# Supabase (server-side only)
+SUPABASE_URL=
+SUPABASE_SERVICE_ROLE_KEY=
+
+# AI APIs
+OPENAI_API_KEY=
+DEEPSEEK_API_KEY=
+PERPLEXITY_API_KEY=
+HUGGINGFACE_API_KEY=
+
+# Auth
+NEXT_PUBLIC_AUTH_GITHUB=true
+
+# Analytics (server-side only)
+STATSIG_SERVER_API_KEY=
