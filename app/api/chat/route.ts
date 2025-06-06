@@ -1,97 +1,57 @@
 import "server-only"
-import { streamText } from "ai"
-import { openai } from "@ai-sdk/openai"
+import { type NextRequest, NextResponse } from "next/server"
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
 import type { Database } from "@/lib/db_types"
-
-import { auth } from "@/auth"
-import { nanoid } from "@/lib/utils"
+import { routeModel } from "@/lib/ai/router"
+import { addMessage, createChat } from "@/lib/supabase/database"
 
 export const runtime = "edge"
 export const maxDuration = 30
 
 const ANONYMOUS_USER_ID = "00000000-0000-0000-0000-000000000000"
 
-export async function POST(req: Request) {
-  const cookieStore = cookies()
-  const supabase = createRouteHandlerClient<Database>({
-    cookies: () => cookieStore,
-  })
-  const json = await req.json()
-  const { messages, previewToken } = json
-
-  // For anonymous access, we'll use a default user ID
-  let userId = ANONYMOUS_USER_ID
-
+export async function POST(req: NextRequest) {
   try {
-    const session = await auth({ cookieStore })
-    if (session?.user?.id) {
-      userId = session.user.id
+    const cookieStore = cookies()
+    const supabase = createRouteHandlerClient<Database>({
+      cookies: () => cookieStore,
+    })
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
+
+    const { messages, chatId, provider = "openai", task = "general" } = await req.json()
+
+    let currentChatId = chatId
+
+    // Create new chat if none exists
+    if (!currentChatId) {
+      const newChat = await createChat("New Chat", undefined, task)
+      currentChatId = newChat.id
+    }
+
+    // Add user message to database
+    const userMessage = messages[messages.length - 1]
+    await addMessage(currentChatId, "user", userMessage.content)
+
+    // Generate AI response
+    const response = await routeModel(messages, provider, task)
+
+    // Add AI response to database
+    await addMessage(currentChatId, "assistant", response)
+
+    return NextResponse.json({
+      response,
+      chatId: currentChatId,
+    })
   } catch (error) {
-    // If auth fails, continue with anonymous user
-    console.log("Auth failed, using anonymous user")
+    console.error("Chat API error:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
-
-  if (previewToken) {
-    // Handle preview token if needed
-  }
-
-  const result = streamText({
-    model: openai("gpt-3.5-turbo"),
-    system: "You are a helpful assistant.",
-    messages,
-  })
-
-  return result.toDataStreamResponse({
-    getErrorMessage: (error) => {
-      if (error == null) {
-        return "unknown error"
-      }
-
-      if (typeof error === "string") {
-        return error
-      }
-
-      if (error instanceof Error) {
-        return error.message
-      }
-
-      return JSON.stringify(error)
-    },
-    async onCompletion(completion) {
-      const title = json.messages[0].content.substring(0, 100)
-      const id = json.id ?? nanoid()
-      const createdAt = Date.now()
-      const path = `/chat/${id}`
-      const payload = {
-        id,
-        title,
-        userId,
-        createdAt,
-        path,
-        messages: [
-          ...messages,
-          {
-            content: completion,
-            role: "assistant",
-          },
-        ],
-      }
-      // Insert chat into database.
-      try {
-        await supabase
-          .from("chats")
-          .upsert({
-            id,
-            payload,
-            user_id: userId,
-          })
-          .throwOnError()
-      } catch (error) {
-        console.error("Error saving chat:", error)
-      }
-    },
-  })
 }

@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    // ppr: true, // Removed because it's not supported in current Next.js versions
+    serverComponentsExternalPackages: ["sharp", "onnxruntime-node"],
   },
   eslint: {
     ignoreDuringBuilds: true,
@@ -10,18 +10,24 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "*.supabase.co",
+        port: "",
+        pathname: "/storage/v1/object/public/**",
+      },
+    ],
     unoptimized: true,
   },
-  webpack: (config, { isServer }) => {
-    // Ensure React is properly resolved
+  webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
-      react: require.resolve("react"),
-      "react-dom": require.resolve("react-dom"),
+      sharp$: false,
+      "onnxruntime-node$": false,
     }
-
     return config
   },
 }
 
-module.exports = nextConfig 
+module.exports = nextConfig

@@ -125,7 +125,7 @@ The application uses Supabase for data storage with the following setup:
 This tool is designed to assist with legal document preparation but does not constitute legal advice. Always consult with qualified legal professionals for specific legal matters.
 \`\`\`
 
-```plaintext file="env.example"
+\`\`\`plaintext file="env.example"
 # Database
 POSTGRES_URL=
 POSTGRES_USER=

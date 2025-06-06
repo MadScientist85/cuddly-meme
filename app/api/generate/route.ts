@@ -1,94 +1,68 @@
-import { streamText } from "ai"
-import { openai } from "@ai-sdk/openai"
+import { type NextRequest, NextResponse } from "next/server"
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
-import type { Database } from "@/lib/db_types"
 
-export const runtime = "edge"
-export const maxDuration = 30
+import { routeModel } from "@/lib/ai/router"
+import { createDocument } from "@/lib/supabase/database"
+import { getReferenceMaterials } from "@/lib/supabase/database"
 
-const ANONYMOUS_USER_ID = "00000000-0000-0000-0000-000000000000"
-
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const cookieStore = cookies()
-    const supabase = createRouteHandlerClient<Database>({
+    const supabase = createRouteHandlerClient({
       cookies: () => cookieStore,
     })
 
-    const json = await req.json()
-    const { messages, task, provider } = json
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
-    // Use anonymous user ID for all requests
-    const userId = ANONYMOUS_USER_ID
-
-    // System prompt based on task type
-    const systemPrompts = {
-      hearing_request:
-        "You are a legal assistant specializing in Oklahoma post-conviction relief and trauma-informed sentencing. Help draft hearing requests and legal motions.",
-      constitutional_argument:
-        "You are a constitutional law expert. Help craft arguments based on constitutional principles and precedents.",
-      statutory_analysis:
-        "You are a legal analyst specializing in statutory interpretation. Help analyze and interpret legal statutes.",
-      default:
-        "You are a helpful legal AI assistant. Provide accurate, well-researched legal information and assistance.",
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const systemPrompt = systemPrompts[task as keyof typeof systemPrompts] || systemPrompts.default
+    const { prompt, provider = "openai", task = "general", templateId, title } = await req.json()
 
-    const result = streamText({
-      model: openai("gpt-3.5-turbo"),
-      system: systemPrompt,
-      messages,
+    // Fetch relevant reference materials
+    const references = await getReferenceMaterials([task])
+    const context = references.map((ref) => `${ref.title}\n${ref.content}`).join("\n\n---\n\n")
+
+    // Construct enhanced prompt with context
+    const enhancedPrompt = `
+Task: ${task}
+
+Context and Reference Materials:
+${context}
+
+User Request:
+${prompt}
+
+Please generate a comprehensive legal document based on the above context and request. Follow proper legal formatting and include relevant citations where appropriate.
+`
+
+    // Generate document using AI
+    const messages = [{ role: "user" as const, content: enhancedPrompt }]
+    const generatedContent = await routeModel(messages, provider, task)
+
+    // Save document to database
+    const document = await createDocument({
+      title: title || "Generated Document",
+      content: generatedContent,
+      category: task,
+      template_id: templateId,
+      metadata: {
+        provider,
+        task,
+        generated_at: new Date().toISOString(),
+      },
     })
 
-    return result.toDataStreamResponse({
-      getErrorMessage: (error) => {
-        if (error == null) return "Unknown error occurred"
-        if (typeof error === "string") return error
-        if (error instanceof Error) return error.message
-        return JSON.stringify(error)
-      },
-      async onCompletion(completion) {
-        // Save the conversation to database
-        try {
-          const title = messages[0]?.content?.substring(0, 100) || "Legal Consultation"
-          const id = crypto.randomUUID()
-          const createdAt = Date.now()
-          const path = `/chat/${id}`
-
-          const payload = {
-            id,
-            title,
-            userId,
-            createdAt,
-            path,
-            task,
-            provider,
-            messages: [
-              ...messages,
-              {
-                content: completion,
-                role: "assistant",
-              },
-            ],
-          }
-
-          await supabase
-            .from("chats")
-            .upsert({
-              id,
-              payload,
-              user_id: userId,
-            })
-            .throwOnError()
-        } catch (error) {
-          console.error("Error saving chat:", error)
-        }
-      },
+    return NextResponse.json({
+      content: generatedContent,
+      documentId: document.id,
     })
   } catch (error) {
-    console.error("API Error:", error)
-    return new Response("Internal Server Error", { status: 500 })
+    console.error("Generate API error:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

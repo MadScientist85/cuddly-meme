@@ -1,31 +1,35 @@
-import type { Metadata } from "next"
+import { Suspense } from "react"
 import { notFound } from "next/navigation"
 
-import { getChat } from "@/app/actions"
+import { getUser } from "@/lib/supabase/auth"
+import { getChatById } from "@/lib/supabase/database"
 import { Chat } from "@/components/chat"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
 
-export const runtime = "edge"
-export const preferredRegion = "home"
-
-export interface ChatPageProps {
+interface ChatPageProps {
   params: {
     id: string
   }
 }
 
-export async function generateMetadata({ params }: ChatPageProps): Promise<Metadata> {
-  const chat = await getChat(params.id)
-  return {
-    title: chat?.title.toString().slice(0, 50) ?? "Chat",
-  }
-}
-
 export default async function ChatPage({ params }: ChatPageProps) {
-  const chat = await getChat(params.id)
+  const user = await getUser()
 
-  if (!chat) {
+  if (!user) {
     notFound()
   }
 
-  return <Chat id={chat.id} initialMessages={chat.messages} />
+  let chat
+  try {
+    chat = await getChatById(params.id)
+  } catch (error) {
+    // Chat doesn't exist, create a new one
+    chat = null
+  }
+
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <Chat id={params.id} initialChat={chat} />
+    </Suspense>
+  )
 }

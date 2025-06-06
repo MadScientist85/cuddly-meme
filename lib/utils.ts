@@ -1,11 +1,10 @@
-import { clsx, type ClassValue } from "clsx"
+import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-// Generate a random nanoid-style string
 export function nanoid(size = 21): string {
   const alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
   let id = ""
@@ -15,12 +14,11 @@ export function nanoid(size = 21): string {
   return id
 }
 
-// Format date to a readable string
 export function formatDate(date: Date | string | number): string {
   const d = new Date(date)
 
   if (isNaN(d.getTime())) {
-    return "Invalid Date"
+    return "Invalid date"
   }
 
   const now = new Date()
@@ -45,29 +43,104 @@ export function formatDate(date: Date | string | number): string {
   }
 }
 
-// Additional utility function for absolute date formatting
 export function formatAbsoluteDate(date: Date | string | number): string {
   const d = new Date(date)
 
   if (isNaN(d.getTime())) {
-    return "Invalid Date"
+    return "Invalid date"
   }
 
   return d.toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
   })
 }
 
-// Utility function for truncating text
 export function truncate(str: string, length: number): string {
-  return str.length > length ? `${str.substring(0, length)}...` : str
+  if (str.length <= length) return str
+  return str.slice(0, length) + "..."
 }
 
-// Utility function for capitalizing first letter
 export function capitalize(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1)
+}
+
+export function slugify(str: string): string {
+  return str
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/[\s_-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+}
+
+export function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (...args: Parameters<T>) => void {
+  let timeout: NodeJS.Timeout | null = null
+
+  return (...args: Parameters<T>) => {
+    if (timeout) {
+      clearTimeout(timeout)
+    }
+
+    timeout = setTimeout(() => {
+      func(...args)
+    }, wait)
+  }
+}
+
+export function isValidEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return emailRegex.test(email)
+}
+
+export function generateShareToken(): string {
+  return nanoid(32)
+}
+
+export function formatFileSize(bytes: number): string {
+  if (bytes === 0) return "0 Bytes"
+
+  const k = 1024
+  const sizes = ["Bytes", "KB", "MB", "GB"]
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+
+  return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
+}
+
+export function extractVariables(template: string): string[] {
+  const regex = /\{\{(\w+)\}\}/g
+  const variables: string[] = []
+  let match
+
+  while ((match = regex.exec(template)) !== null) {
+    if (!variables.includes(match[1])) {
+      variables.push(match[1])
+    }
+  }
+
+  return variables
+}
+
+export function replaceVariables(template: string, variables: Record<string, string>): string {
+  let result = template
+
+  Object.entries(variables).forEach(([key, value]) => {
+    const regex = new RegExp(`\\{\\{${key}\\}\\}`, "g")
+    result = result.replace(regex, value)
+  })
+
+  return result
+}
+
+export function getInitials(name: string): string {
+  return name
+    .split(" ")
+    .map((word) => word.charAt(0))
+    .join("")
+    .toUpperCase()
+    .slice(0, 2)
+}
+
+export function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }

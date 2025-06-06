@@ -1,20 +1,20 @@
 import { Suspense } from "react"
+import { redirect } from "next/navigation"
 
 import { getUser } from "@/lib/supabase/auth"
-import { TemplateManagementDashboard } from "@/components/template-management-dashboard"
-import { LandingPage } from "@/components/landing-page"
+import { DocumentLibrary } from "@/components/document-library"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 
-export default async function HomePage() {
+export default async function DocumentsPage() {
   const user = await getUser()
 
   if (!user) {
-    return <LandingPage />
+    redirect("/auth/signin")
   }
 
   return (
     <Suspense fallback={<LoadingSpinner />}>
-      <TemplateManagementDashboard />
+      <DocumentLibrary />
     </Suspense>
   )
 }
