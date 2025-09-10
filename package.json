@@ -45,7 +45,7 @@
     "cmdk": "^0.2.1",
     "date-fns": "^3.3.1",
     "framer-motion": "^11.0.3",
-    "geist": "latest",
+    "geist": "1.5.1",
     "highlight.js": "latest",
     "jspdf": "^2.5.1",
     "katex": "latest",

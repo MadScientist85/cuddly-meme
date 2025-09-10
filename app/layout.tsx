@@ -1,61 +1,36 @@
 import type React from "react"
-import { GeistSans } from "geist/font/sans"
-import { GeistMono } from "geist/font/mono"
-
-import "@/app/globals.css"
-import { cn } from "@/lib/utils"
-import { TailwindIndicator } from "@/components/tailwind-indicator"
-import { Providers } from "@/components/providers"
-import { Header } from "@/components/header"
-import { Toaster } from "@/components/toaster"
+import { Inter } from "next/font/google"
 import { Suspense } from "react"
+import { Toaster } from "@/components/ui/toaster"
+import { ThemeProvider } from "@/components/theme-provider"
+import { AuthProvider } from "@/components/auth/auth-provider"
+import { cn } from "@/lib/utils"
+import "./globals.css"
+
+const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
-  title: {
-    default: "Legal AI Assistant",
-    template: `%s - Legal AI Assistant`,
-  },
-  description: "An AI-powered legal assistant for Oklahoma Survivors Act litigation",
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "white" },
-    { media: "(prefers-color-scheme: dark)", color: "black" },
-  ],
-  icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon-16x16.png",
-    apple: "/apple-touch-icon.png",
-  },
+  title: "Legal AI Assistant - Oklahoma Survivors' Act Litigation Suite",
+  description: "AI-powered legal assistant for Oklahoma post-conviction relief and trauma-informed sentencing",
     generator: 'v0.app'
 }
 
-export const viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "white" },
-    { media: "(prefers-color-scheme: dark)", color: "black" },
-  ],
-}
-
-interface RootLayoutProps {
+export default function RootLayout({
+  children,
+}: {
   children: React.ReactNode
-}
-
-export default function RootLayout({ children }: RootLayoutProps) {
+}) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head />
-      <body className={cn("font-sans antialiased", GeistSans.variable, GeistMono.variable)}>
-        <Toaster />
-        <Providers attribute="class" defaultTheme="system" enableSystem>
-          <div className="flex flex-col min-h-screen">
-            <Suspense fallback={<div>Loading...</div>}>
-              <Header />
+      <body className={cn("min-h-screen bg-background font-sans antialiased", inter.className)}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <AuthProvider>
+            <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+              {children}
             </Suspense>
-            <main className="flex flex-col flex-1 bg-muted/50">
-              <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
-            </main>
-          </div>
-          <TailwindIndicator />
-        </Providers>
+            <Toaster />
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

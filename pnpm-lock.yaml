@@ -102,7 +102,7 @@ importers:
         specifier: ^11.0.3
         version: 11.0.3(react-dom@18.0.0(react@18.0.0))(react@18.0.0)
       geist:
-        specifier: latest
+        specifier: 1.5.1
         version: 1.5.1(next@14.2.16(@opentelemetry/api@1.9.0)(react-dom@18.0.0(react@18.0.0))(react@18.0.0))
       highlight.js:
         specifier: latest
@@ -2865,9 +2865,6 @@ packages:
     peerDependencies:
       react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0-rc
 
-  magic-string@0.30.17:
-    resolution: {integrity: sha512-sNPKHvyjVf7gyjwS4xGTaW/mCnF8wnjtifKBEhxfZ7E/S8tQ0rssrwGNn6q8JH/ohItJfSQp9mBtQYuTlH5QnA==}
-
   magic-string@0.30.19:
     resolution: {integrity: sha512-2N21sPY9Ws53PZvsEpVtNuSW+ScYbQdp4b9qUaL+9QkHUrGFKo56Lg9Emg5s9V/qrtNBmiR01sYhUOwu3H+VOw==}
 
@@ -5258,7 +5255,7 @@ snapshots:
       devalue: 5.3.2
       esm-env: 1.2.2
       kleur: 4.1.5
-      magic-string: 0.30.17
+      magic-string: 0.30.19
       mrmime: 2.0.1
       sade: 1.8.1
       set-cookie-parser: 2.7.1
@@ -6335,7 +6332,7 @@ snapshots:
 
   esrap@2.1.0:
     dependencies:
-      '@jridgewell/sourcemap-codec': 1.5.0
+      '@jridgewell/sourcemap-codec': 1.5.5
     optional: true
 
   esrecurse@4.3.0:
@@ -7001,11 +6998,6 @@ snapshots:
   lucide-react@0.454.0(react@18.0.0):
     dependencies:
       react: 18.0.0
-
-  magic-string@0.30.17:
-    dependencies:
-      '@jridgewell/sourcemap-codec': 1.5.0
-    optional: true
 
   magic-string@0.30.19:
     dependencies:
@@ -8254,7 +8246,7 @@ snapshots:
   svelte@5.38.8:
     dependencies:
       '@jridgewell/remapping': 2.3.5
-      '@jridgewell/sourcemap-codec': 1.5.0
+      '@jridgewell/sourcemap-codec': 1.5.5
       '@sveltejs/acorn-typescript': 1.0.5(acorn@8.14.1)
       '@types/estree': 1.0.8
       acorn: 8.14.1
@@ -8265,7 +8257,7 @@ snapshots:
       esrap: 2.1.0
       is-reference: 3.0.3
       locate-character: 3.0.0
-      magic-string: 0.30.17
+      magic-string: 0.30.19
       zimmerframe: 1.1.2
     optional: true
 

@@ -4,7 +4,7 @@ import type React from "react"
 
 import { createContext, useContext, useEffect, useState } from "react"
 import type { User } from "@supabase/supabase-js"
-import { createClient } from "@/lib/supabase/client"
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 
 interface AuthContextType {
   user: User | null
@@ -12,12 +12,16 @@ interface AuthContextType {
   signOut: () => Promise<void>
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+const AuthContext = createContext<AuthContextType>({
+  user: null,
+  loading: true,
+  signOut: async () => {},
+})
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const supabase = createClient()
+  const supabase = createClientComponentClient()
 
   useEffect(() => {
     const getUser = async () => {
@@ -47,7 +51,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return <AuthContext.Provider value={{ user, loading, signOut }}>{children}</AuthContext.Provider>
 }
 
-export function useAuth() {
+export const useAuth = () => {
   const context = useContext(AuthContext)
   if (context === undefined) {
     throw new Error("useAuth must be used within an AuthProvider")
