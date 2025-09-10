@@ -8,9 +8,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { IconSpinner, IconEye, IconEyeOff } from "@/components/ui/icons"
+import { IconEye, IconEyeOff, IconSpinner } from "@/components/ui/icons"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
+import { toast } from "sonner"
 
 function SignUpFormContent() {
   const [email, setEmail] = useState("")
@@ -19,50 +19,43 @@ function SignUpFormContent() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [message, setMessage] = useState<string | null>(null)
-
   const router = useRouter()
   const searchParams = useSearchParams()
+  const redirectTo = searchParams.get("redirect") || "/"
   const supabase = createClientComponentClient()
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
-    setError(null)
-    setMessage(null)
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match")
-      setIsLoading(false)
+      toast.error("Passwords do not match")
       return
     }
 
     if (password.length < 6) {
-      setError("Password must be at least 6 characters long")
-      setIsLoading(false)
+      toast.error("Password must be at least 6 characters")
       return
     }
 
+    setIsLoading(true)
+
     try {
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: `${location.origin}/auth/callback`,
+          emailRedirectTo: `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectTo)}`,
         },
       })
 
       if (error) {
-        setError(error.message)
-      } else if (data.user && !data.user.email_confirmed_at) {
-        setMessage("Check your email for the confirmation link!")
+        toast.error(error.message)
       } else {
-        const redirectTo = searchParams?.get("redirectTo") ?? "/chat"
-        router.push(redirectTo)
+        toast.success("Check your email for the confirmation link!")
+        router.push("/auth/signin")
       }
     } catch (error) {
-      setError("An unexpected error occurred")
+      toast.error("An unexpected error occurred")
     } finally {
       setIsLoading(false)
     }
@@ -72,24 +65,11 @@ function SignUpFormContent() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Create an account</CardTitle>
-          <CardDescription className="text-center">
-            Enter your email and password to create your account
-          </CardDescription>
+          <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
+          <CardDescription>Enter your email and password to create your account</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-            {message && (
-              <Alert>
-                <AlertDescription>{message}</AlertDescription>
-              </Alert>
-            )}
-
+          <form onSubmit={handleSignUp} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -102,7 +82,6 @@ function SignUpFormContent() {
                 disabled={isLoading}
               />
             </div>
-
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <div className="relative">
@@ -128,7 +107,6 @@ function SignUpFormContent() {
                 </Button>
               </div>
             </div>
-
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirm Password</Label>
               <div className="relative">
@@ -154,16 +132,25 @@ function SignUpFormContent() {
                 </Button>
               </div>
             </div>
-
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading && <IconSpinner className="mr-2 h-4 w-4" />}
-              Create Account
+              {isLoading ? (
+                <>
+                  <IconSpinner className="mr-2 h-4 w-4" />
+                  Creating account...
+                </>
+              ) : (
+                "Create account"
+              )}
             </Button>
           </form>
-
           <div className="mt-4 text-center text-sm">
             Already have an account?{" "}
-            <Button variant="link" className="p-0 h-auto font-normal" onClick={() => router.push("/auth/signin")}>
+            <Button
+              variant="link"
+              className="p-0 h-auto font-normal"
+              onClick={() => router.push("/auth/signin")}
+              disabled={isLoading}
+            >
               Sign in
             </Button>
           </div>
@@ -178,7 +165,7 @@ export function SignUpForm() {
     <Suspense
       fallback={
         <div className="flex min-h-screen items-center justify-center">
-          <IconSpinner className="h-8 w-8 animate-spin" />
+          <IconSpinner className="h-8 w-8" />
         </div>
       }
     >
