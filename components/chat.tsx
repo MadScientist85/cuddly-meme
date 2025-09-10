@@ -1,9 +1,7 @@
 "use client"
 
 import type React from "react"
-
 import { useChat, type Message } from "ai/react"
-
 import { cn } from "@/lib/utils"
 import { ChatList } from "@/components/chat-list"
 import { ChatPanel } from "@/components/chat-panel"
@@ -24,6 +22,7 @@ import { Input } from "./ui/input"
 import { toast } from "react-hot-toast"
 
 const IS_PREVIEW = process.env.VERCEL_ENV === "preview"
+
 export interface ChatProps extends React.ComponentProps<"div"> {
   initialMessages?: Message[]
   id?: string
@@ -33,6 +32,7 @@ export function Chat({ id, initialMessages, className }: ChatProps) {
   const [previewToken, setPreviewToken] = useLocalStorage<string | null>("ai-token", null)
   const [previewTokenDialog, setPreviewTokenDialog] = useState(IS_PREVIEW)
   const [previewTokenInput, setPreviewTokenInput] = useState(previewToken ?? "")
+
   const { messages, append, reload, stop, isLoading, input, setInput } = useChat({
     initialMessages,
     id,
@@ -46,6 +46,7 @@ export function Chat({ id, initialMessages, className }: ChatProps) {
       }
     },
   })
+
   return (
     <>
       <div className={cn("pb-[200px] pt-4 md:pt-10", className)}>
