@@ -1,52 +1,61 @@
 import type React from "react"
-import type { Metadata } from "next"
 import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
-import { Analytics } from "@vercel/analytics/next"
-import { Suspense } from "react"
+
+import "@/app/globals.css"
+import { cn } from "@/lib/utils"
+import { TailwindIndicator } from "@/components/tailwind-indicator"
+import { Providers } from "@/components/providers"
+import { Header } from "@/components/header"
 import { Toaster } from "@/components/toaster"
-import { AuthProvider } from "@/components/auth/auth-provider"
-import { ThemeProvider } from "@/components/theme-provider"
-import "./globals.css"
+import { Suspense } from "react"
 
-export const metadata: Metadata = {
-  title: "Legal AI Assistant - Oklahoma Survivors' Act Litigation Suite",
-  description: "AI-powered legal assistant for Oklahoma post-conviction relief and trauma-informed sentencing",
-  generator: "v0.app",
+export const metadata = {
+  title: {
+    default: "Legal AI Assistant",
+    template: `%s - Legal AI Assistant`,
+  },
+  description: "An AI-powered legal assistant for Oklahoma Survivors Act litigation",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "white" },
+    { media: "(prefers-color-scheme: dark)", color: "black" },
+  ],
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon-16x16.png",
+    apple: "/apple-touch-icon.png",
+  },
+    generator: 'v0.app'
 }
 
-function LoadingFallback() {
-  return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
-    </div>
-  )
+export const viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "white" },
+    { media: "(prefers-color-scheme: dark)", color: "black" },
+  ],
 }
 
-export default function RootLayout({
-  children,
-}: Readonly<{
+interface RootLayoutProps {
   children: React.ReactNode
-}>) {
+}
+
+export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <style>{`
-html {
-  font-family: ${GeistSans.style.fontFamily};
-  --font-sans: ${GeistSans.variable};
-  --font-mono: ${GeistMono.variable};
-}
-        `}</style>
-      </head>
-      <body className={`${GeistSans.variable} ${GeistMono.variable} font-sans`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <Suspense fallback={<LoadingFallback />}>
-            <AuthProvider>{children}</AuthProvider>
-          </Suspense>
-        </ThemeProvider>
-        <Analytics />
+      <head />
+      <body className={cn("font-sans antialiased", GeistSans.variable, GeistMono.variable)}>
         <Toaster />
+        <Providers attribute="class" defaultTheme="system" enableSystem>
+          <div className="flex flex-col min-h-screen">
+            <Suspense fallback={<div>Loading...</div>}>
+              <Header />
+            </Suspense>
+            <main className="flex flex-col flex-1 bg-muted/50">
+              <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+            </main>
+          </div>
+          <TailwindIndicator />
+        </Providers>
       </body>
     </html>
   )

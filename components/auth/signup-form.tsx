@@ -12,10 +12,11 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { IconGitHub, IconSpinner } from "@/components/ui/icons"
 import { createClient } from "@/lib/supabase/client"
 
-function SignupFormContent() {
+function SignUpFormContent() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
+  const [fullName, setFullName] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
@@ -25,7 +26,7 @@ function SignupFormContent() {
 
   const supabase = createClient()
 
-  const handleEmailSignup = async (e: React.FormEvent) => {
+  const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
@@ -37,11 +38,20 @@ function SignupFormContent() {
       return
     }
 
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters")
+      setLoading(false)
+      return
+    }
+
     try {
       const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
+          data: {
+            full_name: fullName,
+          },
           emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=${encodeURIComponent(redirectTo)}`,
         },
       })
@@ -58,7 +68,7 @@ function SignupFormContent() {
     }
   }
 
-  const handleGitHubSignup = async () => {
+  const handleGitHubSignUp = async () => {
     setLoading(true)
     setError(null)
 
@@ -100,12 +110,25 @@ function SignupFormContent() {
             </Alert>
           )}
 
-          <form onSubmit={handleEmailSignup} className="space-y-4">
+          <form onSubmit={handleEmailSignUp} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="fullName">Full Name</Label>
+              <Input
+                id="fullName"
+                type="text"
+                placeholder="Enter your full name"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+                disabled={loading}
+              />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
+                placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -117,6 +140,7 @@ function SignupFormContent() {
               <Input
                 id="password"
                 type="password"
+                placeholder="Create a password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -129,6 +153,7 @@ function SignupFormContent() {
               <Input
                 id="confirmPassword"
                 type="password"
+                placeholder="Confirm your password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
@@ -143,7 +168,7 @@ function SignupFormContent() {
                   Creating account...
                 </>
               ) : (
-                "Sign Up"
+                "Create Account"
               )}
             </Button>
           </form>
@@ -157,7 +182,7 @@ function SignupFormContent() {
             </div>
           </div>
 
-          <Button variant="outline" onClick={handleGitHubSignup} disabled={loading} className="w-full bg-transparent">
+          <Button variant="outline" onClick={handleGitHubSignUp} disabled={loading} className="w-full bg-transparent">
             <IconGitHub className="mr-2 h-4 w-4" />
             GitHub
           </Button>
@@ -174,7 +199,7 @@ function SignupFormContent() {
   )
 }
 
-export function SignupForm() {
+export function SignUpForm() {
   return (
     <Suspense
       fallback={
@@ -183,7 +208,10 @@ export function SignupForm() {
         </div>
       }
     >
-      <SignupFormContent />
+      <SignUpFormContent />
     </Suspense>
   )
 }
+
+// Also export as default for compatibility
+export default SignUpForm

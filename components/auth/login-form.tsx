@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -73,7 +72,7 @@ function LoginFormContent() {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Sign In</CardTitle>
-          <CardDescription>Access your Legal AI Assistant account</CardDescription>
+          <CardDescription>Sign in to your Legal AI Assistant account</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {error && (
