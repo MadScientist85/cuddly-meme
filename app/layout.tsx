@@ -1,33 +1,37 @@
 import type React from "react"
 import { Suspense } from "react"
 import { Inter } from "next/font/google"
-import { Toaster } from "sonner"
-import { AuthProvider } from "@/components/auth/auth-provider"
+import { Toaster } from "@/components/toaster"
+import { TailwindIndicator } from "@/components/tailwind-indicator"
 import { ThemeProvider } from "@/components/theme-provider"
+import { AuthProvider } from "@/components/auth/auth-provider"
+import { cn } from "@/lib/utils"
 import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
-  title: "Legal AI Assistant - Oklahoma Survivors' Act Litigation Suite",
-  description: "AI-powered legal assistant for Oklahoma post-conviction relief and trauma-informed sentencing",
+  title: "Legal AI Assistant",
+  description: "AI-powered legal document generation and analysis",
     generator: 'v0.app'
 }
 
-export default function RootLayout({
-  children,
-}: {
+interface RootLayoutProps {
   children: React.ReactNode
-}) {
+}
+
+export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <head />
+      <body className={cn("min-h-screen bg-background font-sans antialiased", inter.className)}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <AuthProvider>
-            <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
-              {children}
-            </Suspense>
-            <Toaster position="top-center" />
+            <div className="relative flex min-h-screen flex-col">
+              <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+            </div>
+            <TailwindIndicator />
+            <Toaster />
           </AuthProvider>
         </ThemeProvider>
       </body>

@@ -7,69 +7,111 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { IconEye, IconEyeOff, IconSpinner } from "@/components/ui/icons"
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
-import { toast } from "sonner"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { IconEye, IconEyeOff, IconLoader, IconGitHub } from "@/components/ui/icons"
+import { signUpWithEmail, signInWithGitHub } from "@/lib/supabase/auth"
 
 function SignUpFormContent() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
+  const [fullName, setFullName] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
+
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirectTo = searchParams.get("redirect") || "/"
-  const supabase = createClientComponentClient()
+  const redirectTo = searchParams.get("redirectTo") || "/"
 
-  const handleSignUp = async (e: React.FormEvent) => {
+  const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError("")
+    setSuccess("")
 
     if (password !== confirmPassword) {
-      toast.error("Passwords do not match")
+      setError("Passwords do not match")
       return
     }
 
     if (password.length < 6) {
-      toast.error("Password must be at least 6 characters")
+      setError("Password must be at least 6 characters")
       return
     }
 
     setIsLoading(true)
 
     try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectTo)}`,
-        },
-      })
-
-      if (error) {
-        toast.error(error.message)
-      } else {
-        toast.success("Check your email for the confirmation link!")
-        router.push("/auth/signin")
-      }
-    } catch (error) {
-      toast.error("An unexpected error occurred")
+      await signUpWithEmail(email, password, fullName)
+      setSuccess("Check your email for a confirmation link!")
+    } catch (err: any) {
+      setError(err.message || "An error occurred during sign up")
     } finally {
       setIsLoading(false)
     }
   }
 
+  const handleGitHubSignUp = async () => {
+    setError("")
+    setIsLoading(true)
+
+    try {
+      await signInWithGitHub()
+    } catch (err: any) {
+      setError(err.message || "An error occurred during GitHub sign up")
+      setIsLoading(false)
+    }
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
-          <CardDescription>Enter your email and password to create your account</CardDescription>
+          <CardTitle className="text-2xl font-bold text-center">Create an account</CardTitle>
+          <CardDescription className="text-center">Enter your details to create your account</CardDescription>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSignUp} className="space-y-4">
+        <CardContent className="space-y-4">
+          {error && (
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          {success && (
+            <Alert>
+              <AlertDescription>{success}</AlertDescription>
+            </Alert>
+          )}
+
+          <Button variant="outline" onClick={handleGitHubSignUp} disabled={isLoading} className="w-full bg-transparent">
+            {isLoading ? <IconLoader className="mr-2 h-4 w-4 animate-spin" /> : <IconGitHub className="mr-2 h-4 w-4" />}
+            Continue with GitHub
+          </Button>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+            </div>
+          </div>
+
+          <form onSubmit={handleEmailSignUp} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="fullName">Full Name</Label>
+              <Input
+                id="fullName"
+                type="text"
+                placeholder="Enter your full name"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                disabled={isLoading}
+              />
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -82,6 +124,7 @@ function SignUpFormContent() {
                 disabled={isLoading}
               />
             </div>
+
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <div className="relative">
@@ -93,7 +136,7 @@ function SignUpFormContent() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   disabled={isLoading}
-                  minLength={6}
+                  className="pr-10"
                 />
                 <Button
                   type="button"
@@ -107,6 +150,7 @@ function SignUpFormContent() {
                 </Button>
               </div>
             </div>
+
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirm Password</Label>
               <div className="relative">
@@ -118,7 +162,7 @@ function SignUpFormContent() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                   disabled={isLoading}
-                  minLength={6}
+                  className="pr-10"
                 />
                 <Button
                   type="button"
@@ -132,10 +176,11 @@ function SignUpFormContent() {
                 </Button>
               </div>
             </div>
+
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (
                 <>
-                  <IconSpinner className="mr-2 h-4 w-4" />
+                  <IconLoader className="mr-2 h-4 w-4 animate-spin" />
                   Creating account...
                 </>
               ) : (
@@ -143,18 +188,19 @@ function SignUpFormContent() {
               )}
             </Button>
           </form>
-          <div className="mt-4 text-center text-sm">
+        </CardContent>
+        <CardFooter>
+          <p className="text-center text-sm text-gray-600 w-full">
             Already have an account?{" "}
             <Button
               variant="link"
-              className="p-0 h-auto font-normal"
-              onClick={() => router.push("/auth/signin")}
-              disabled={isLoading}
+              className="p-0 h-auto font-semibold"
+              onClick={() => router.push(`/auth/signin?redirectTo=${encodeURIComponent(redirectTo)}`)}
             >
               Sign in
             </Button>
-          </div>
-        </CardContent>
+          </p>
+        </CardFooter>
       </Card>
     </div>
   )
@@ -162,13 +208,7 @@ function SignUpFormContent() {
 
 export function SignUpForm() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex min-h-screen items-center justify-center">
-          <IconSpinner className="h-8 w-8" />
-        </div>
-      }
-    >
+    <Suspense fallback={<div>Loading...</div>}>
       <SignUpFormContent />
     </Suspense>
   )

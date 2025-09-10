@@ -67,7 +67,7 @@
     "remark-gfm": "latest",
     "remark-math": "latest",
     "server-only": "latest",
-    "sonner": "latest",
+    "sonner": "^1.4.0",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
     "use-debounce": "^10.0.0",
