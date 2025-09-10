@@ -1,172 +1,123 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+
+import { useState, Suspense } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Icons } from "@/components/ui/icons"
-import { useToast } from "@/hooks/use-toast"
-import { signInWithEmail, signUpWithEmail, signInWithGitHub } from "@/lib/supabase/auth"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { IconGitHub, IconSpinner } from "@/components/ui/icons"
+import { createClient } from "@/lib/supabase/client"
 
-export function LoginForm() {
-  const [isLoading, setIsLoading] = useState(false)
+function LoginFormContent() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [fullName, setFullName] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const router = useRouter()
-  const { toast } = useToast()
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams.get("redirectTo") || "/chat"
 
-  const handleEmailSignIn = async (e: React.FormEvent) => {
+  const supabase = createClient()
+
+  const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
+    setLoading(true)
+    setError(null)
 
     try {
-      await signInWithEmail(email, password)
-      toast({
-        title: "Welcome back!",
-        description: "You have been signed in successfully.",
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       })
-      router.push("/")
-    } catch (error: any) {
-      toast({
-        title: "Sign in failed",
-        description: error.message || "An error occurred during sign in.",
-        variant: "destructive",
-      })
+
+      if (error) {
+        setError(error.message)
+      } else {
+        router.push(redirectTo)
+      }
+    } catch (err) {
+      setError("An unexpected error occurred")
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
 
-  const handleEmailSignUp = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+  const handleGitHubLogin = async () => {
+    setLoading(true)
+    setError(null)
 
     try {
-      await signUpWithEmail(email, password, fullName)
-      toast({
-        title: "Account created!",
-        description: "Please check your email to verify your account.",
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "github",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback?redirectTo=${encodeURIComponent(redirectTo)}`,
+        },
       })
-    } catch (error: any) {
-      toast({
-        title: "Sign up failed",
-        description: error.message || "An error occurred during sign up.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
-  const handleGitHubSignIn = async () => {
-    setIsLoading(true)
-
-    try {
-      await signInWithGitHub()
-    } catch (error: any) {
-      toast({
-        title: "Sign in failed",
-        description: error.message || "An error occurred during GitHub sign in.",
-        variant: "destructive",
-      })
-      setIsLoading(false)
+      if (error) {
+        setError(error.message)
+        setLoading(false)
+      }
+    } catch (err) {
+      setError("An unexpected error occurred")
+      setLoading(false)
     }
   }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
       <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl text-center">Legal AI Assistant</CardTitle>
-          <CardDescription className="text-center">Sign in to your account or create a new one</CardDescription>
+        <CardHeader>
+          <CardTitle>Sign In</CardTitle>
+          <CardDescription>Access your Legal AI Assistant account</CardDescription>
         </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
-            </TabsList>
+        <CardContent className="space-y-4">
+          {error && (
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
 
-            <TabsContent value="signin" className="space-y-4">
-              <form onSubmit={handleEmailSignIn} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </div>
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
-                  Sign In
-                </Button>
-              </form>
-            </TabsContent>
+          <form onSubmit={handleEmailLogin} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                disabled={loading}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={loading}
+              />
+            </div>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? (
+                <>
+                  <IconSpinner className="mr-2 h-4 w-4 animate-spin" />
+                  Signing in...
+                </>
+              ) : (
+                "Sign In"
+              )}
+            </Button>
+          </form>
 
-            <TabsContent value="signup" className="space-y-4">
-              <form onSubmit={handleEmailSignUp} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="fullName">Full Name</Label>
-                  <Input
-                    id="fullName"
-                    type="text"
-                    placeholder="Enter your full name"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="Create a password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </div>
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
-                  Sign Up
-                </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
-
-          <div className="relative my-4">
+          <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
             </div>
@@ -175,22 +126,33 @@ export function LoginForm() {
             </div>
           </div>
 
-          <Button
-            variant="outline"
-            type="button"
-            className="w-full bg-transparent"
-            onClick={handleGitHubSignIn}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Icons.gitHub className="mr-2 h-4 w-4" />
-            )}
+          <Button variant="outline" onClick={handleGitHubLogin} disabled={loading} className="w-full bg-transparent">
+            <IconGitHub className="mr-2 h-4 w-4" />
             GitHub
           </Button>
+
+          <div className="text-center text-sm">
+            Don't have an account?{" "}
+            <a href="/auth/signup" className="underline">
+              Sign up
+            </a>
+          </div>
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export function LoginForm() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+        </div>
+      }
+    >
+      <LoginFormContent />
+    </Suspense>
   )
 }
