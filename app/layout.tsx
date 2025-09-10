@@ -1,71 +1,37 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
-import { Analytics } from "@vercel/analytics/react"
-import { Suspense } from "react"
-
-import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
-import { AuthProvider } from "@/components/auth/auth-provider"
+import { GeistSans } from "geist/font/sans"
+import { GeistMono } from "geist/font/mono"
+import { Analytics } from "@vercel/analytics/next"
 import { Toaster } from "@/components/toaster"
-
-const inter = Inter({ subsets: ["latin"] })
+import "./globals.css"
 
 export const metadata: Metadata = {
-  title: {
-    default: "Legal AI Assistant",
-    template: "%s | Legal AI Assistant",
-  },
-  description: "AI-powered legal research and document generation for Oklahoma post-conviction relief",
-  keywords: ["legal", "AI", "assistant", "Oklahoma", "post-conviction", "relief", "survivors act"],
-  authors: [{ name: "Legal AI Team" }],
-  creator: "Legal AI Team",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    url: process.env.NEXT_PUBLIC_APP_URL,
-    title: "Legal AI Assistant",
-    description: "AI-powered legal research and document generation",
-    siteName: "Legal AI Assistant",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Legal AI Assistant",
-    description: "AI-powered legal research and document generation",
-    creator: "@legalai",
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
-  },
-    generator: 'v0.dev'
+  title: "v0 App",
+  description: "Created with v0",
+  generator: "v0.app",
 }
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode
-}) {
+}>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <Suspense fallback={null}>
-            <AuthProvider>
-              {children}
-              <Toaster />
-            </AuthProvider>
-          </Suspense>
-        </ThemeProvider>
+    <html lang="en">
+      <head>
+        <style>{`
+html {
+  font-family: ${GeistSans.style.fontFamily};
+  --font-sans: ${GeistSans.variable};
+  --font-mono: ${GeistMono.variable};
+}
+        `}</style>
+      </head>
+      <body>
+        {children}
         <Analytics />
+        <Toaster />
       </body>
     </html>
   )

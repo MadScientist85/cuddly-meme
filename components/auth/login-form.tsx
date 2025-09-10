@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -10,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Icons } from "@/components/ui/icons"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/hooks/use-toast"
 import { signInWithEmail, signUpWithEmail, signInWithGitHub } from "@/lib/supabase/auth"
 
 export function LoginForm() {
@@ -176,7 +175,13 @@ export function LoginForm() {
             </div>
           </div>
 
-          <Button variant="outline" type="button" className="w-full" onClick={handleGitHubSignIn} disabled={isLoading}>
+          <Button
+            variant="outline"
+            type="button"
+            className="w-full bg-transparent"
+            onClick={handleGitHubSignIn}
+            disabled={isLoading}
+          >
             {isLoading ? (
               <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
             ) : (
