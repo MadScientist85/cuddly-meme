@@ -51,7 +51,7 @@
     "katex": "latest",
     "lucide-react": "^0.454.0",
     "nanoid": "latest",
-    "next": "14.2.16",
+    "next": "16.1.5",
     "next-themes": "latest",
     "openai": "^4.24.1",
     "react": "^18",
